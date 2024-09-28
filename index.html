@@ -13,14 +13,13 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
+       
         filter: blur(1px);
         opacity: 0.9;
         z-index: -1;
       }
-      
+
+      /* Przycisk do dodawania kafelków */
       #add-tile {
         color: black;
         font-size: 36px;
@@ -35,7 +34,7 @@
         background-color: #F5F5DC;
       }
 
-      /* Kontener dla ikon, z odstępem od prawej strony */
+      /* Kontener dla ikon */
       .icon-container {
         position: relative;
         display: flex;
@@ -46,7 +45,7 @@
         margin-left: 100px; /* Zachowaj odstęp od lewej strony */
       }
 
-      /* Pojedynczy kafelek */
+      /* Styl pojedynczego kafelka */
       .icon {
         width: 100px;
         height: 100px;
@@ -54,7 +53,7 @@
         background-color: green;
         border-radius: 50%;
         display: inline-block;
-        padding: 10px;
+        
         margin: 20px 0; /* Dodanie przerwy między kafelkami */
         text-align: center;
         position: relative;
@@ -73,65 +72,96 @@
 
       /* Kosz */
       #trash {
-            width: 50px;
-            height: 50px;
-            background-image: url('open_trash_test.svg');
-            background-size: cover;
-            border: 1px solid black;
-            margin-top: 20px;
-        }
+        width: 50px;
+        height: 50px;
+        background-image: url('open_trash_test.svg');
+        background-size: cover;
+        border: 1px solid black;
+        margin-top: 20px;
+      }
 
       /* Czarna przerywana linia */
       .separator-line {
-        width: 2px;
-        height: 100%;
-        background-color: transparent;
-        border-left: 2px dashed black;
+        width: 100%; /* Szerokość linii */
+        height: 2px; /* Wysokość linii */
+        background-color: transparent; 
+        border-bottom: 2px dashed black; /* Zmienione na border-bottom, aby zrobić linię poziomą */
         position: absolute;
-        top: 0;
-        right: 60px; /* Ustawienie przerywanej linii na środku */
+        top: 50%; /* Ustawienie linii na środku */
+
       }
+
+      /* Popup z kafelkami do wyboru */
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    }
  
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
-<body>
-  
+<body>  
   <div class="blur-background"></div>
 
-  <!-- Przykładowe ikony -->
-  <div class="icon-container" id="sortable-container">
-    
+  <!-- Kontener na kafelki -->
+  <div class="icon-container" id="sortable-container">    
     <!-- Dodanie przerywanej linii -->
-    <div class="separator-line"></div>
-    
+    <div class="separator-line"></div>    
     <!-- Ikony zostaną dodane dynamicznie -->
-    <div id="add-tile">+</div>
-    
+    <div id="add-tile">+</div>    
   </div>
 
+  <!-- Kosz -->
+  <div id="trash"></div>
+
   <div class="separator-line"></div>
 
-  <!-- Dymek do wybierania kafelków -->
-  <div id="tile-popup" class="popup hidden">
-    <div class="popup-content-tiles">
-      <span id="close-tile-popup" class="close-btn">&times;</span>
-      <h2>Dodaj kafelek</h2>
-      <div id="available-tiles" class="tile-list"></div>
-    </div>
+  <!-- Popup z dostępnymi kafelkami -->
+  <div id="tile-popup" class="popup">
+    <h2>Dodaj kafelek</h2>
+    <div id="available-tiles"></div>
   </div>
 
-  <div class="separator-line"></div>
 
-    <!-- Kosz -->
-    <div id="trash"></div>
-
-  <div class="separator-line"></div>
 
     <script>
       const sortableContainer = document.getElementById('sortable-container');
       const trashIcon = document.getElementById('trash');
       const addTileBtn = document.getElementById("add-tile");
+      const tilePopup = document.getElementById("tile-popup");
+
+      // Funkcja tworząca kafelek na głównym ekranie
+      function createTileForMainScreen(iconSrc, tileId, tileName, tileLink) {
+        const tile = document.createElement("div");
+        tile.className = "icon";
+        tile.innerHTML = `
+          <a href="${tileLink}">
+            <img src="${iconSrc}" alt="${tileName}">
+            <div class="name">${tileName}</div>
+          </a>
+          <button class="remove-btn" data-tile-id="${tileId}">Usuń</button>
+        `;
+        tile.id = tileId;
+        
+        // Dodaj obsługę przeciągania
+        tile.setAttribute("draggable", "true");
+        tile.addEventListener("dragstart", function(event) {
+          event.dataTransfer.setData("text/plain", tileId);
+        });
+
+        // Event listener do przycisku usuwania
+        tile.querySelector('.remove-btn').addEventListener('click', function() {
+          removeTileFromMainScreen(tileId);
+        });
+
+        return tile;
+      }
 
       // Add tile popup functionality
             if (addTileBtn) {
@@ -223,12 +253,55 @@
             removeTileFromMainScreen(tileId); // Usuwanie kafelka po przeciągnięciu na kosz
         });
 
-        // Dodaj przykładowe kafelki do strony
-        const tile1 = createTileForMainScreen("tile1.jpg", "tile1", "Tile 1", "#");
-        const tile2 = createTileForMainScreen("tile2.jpg", "tile2", "Tile 2", "#");
+        // Fetch and load available tiles from JSON
+fetch('assets/tiles.json')
+    .then(response => response.json())
+    .then(data => {
+        const addTileBtn = document.getElementById('add-tile');
+        
+        // Tworzymy popup do wyboru kafelka
+        const tilePopup = document.createElement('div');
+        tilePopup.id = "tile-popup";
+        tilePopup.classList.add('popup');
+        document.body.appendChild(tilePopup);
 
-        sortableContainer.appendChild(tile1);
-        sortableContainer.appendChild(tile2);
+        const tileList = document.createElement('div');
+        tileList.id = "available-tiles";
+        tilePopup.appendChild(tileList);
+
+        // Dodaj dostępne kafelki do popupu
+        data.forEach(tile => {
+            const tileElement = document.createElement('div');
+            tileElement.classList.add('tile-option');
+            tileElement.innerHTML = `<img src="${tile.iconUrl}" alt="${tile.name}"> ${tile.name}`;
+            
+            // Dodanie kafelka do popupu
+            tileList.appendChild(tileElement);
+
+            // Nasłuchiwanie kliknięcia na dany kafelek
+            tileElement.addEventListener('click', function() {
+                // Stwórz nowy kafelek na głównym ekranie
+                const newTile = createTileForMainScreen(tile.iconUrl, tile.id, tile.name, tile.link);
+                sortableContainer.appendChild(newTile);
+
+                // Zamknij popup po wybraniu kafelka
+                tilePopup.style.display = 'none';
+            });
+        });
+
+        // Wyświetl popup po kliknięciu w kafelek "+"
+        addTileBtn.addEventListener("click", function() {
+            tilePopup.style.display = 'block'; // Pokaż popup z kafelkami do wyboru
+        });
+        
+        // Opcjonalnie, dodaj możliwość zamknięcia popupu poza jego obszarem
+        tilePopup.addEventListener('click', function(event) {
+            if (event.target === tilePopup) {
+                tilePopup.style.display = 'none'; // Ukryj popup po kliknięciu poza nim
+            }
+        });
+    })
+    .catch(error => console.error('Error loading tiles:', error));
     </script>
 
 
