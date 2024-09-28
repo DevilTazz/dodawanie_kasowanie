@@ -84,19 +84,18 @@
             background-image: url('open_trash_test.svg');
             background-size: cover;
             border: 1px solid black;
-            position: absolute; /* Użyj pozycji absolutnej */
-            left: 100px; /* Odstęp od lewej */
-            top: calc(180px); /* Odstęp od góry */
+            margin-left: 100px; /* Ustawienie marginesu 100px od lewej */
+            margin-top: 20px; /* Ustawienie marginesu górnego od separatora */
         }
 
         /* Czarna przerywana linia */
         .separator-line {
-            width: 100%; /* Szerokość linii */
+            width: calc(100% - 100px); /* Szerokość linii */
             height: 2px; /* Wysokość linii */
             border-bottom: 2px dashed black; /* Zmienione na border-bottom, aby zrobić linię poziomą */
             position: absolute; /* Użyj pozycji absolutnej */
             top: calc(160px); /* Ustawienie linii 20px poniżej przycisku "+" */
-            left: 0; /* Wyrównanie linii do lewej */
+            left: 100px; /* Wyrównanie linii do lewej */
             margin-top: 20px; /* Odstęp górny */
             margin-bottom: 20px; /* Odstęp dolny */
         }
