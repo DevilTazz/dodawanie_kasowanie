@@ -194,9 +194,14 @@
             });
 
             // Inicjalizacja Sortable dla kosza
-    const trashSortable = new Sortable(trash, {
-        group: 'tiles', // Musi być taka sama grupa jak w kontenerze
-        // Możesz dodać więcej opcji, jeśli chcesz
+            const trashSortable = new Sortable(trash, {
+                group: 'tiles', // Musi być taka sama grupa jak w kontenerze
+                onEnd: function (evt) {
+                    // Upewnij się, że kosz działa jako miejsce docelowe
+                    if (evt.from === sortableContainer && evt.to === trash) {
+                        removeTile(evt.item); // Usunięcie kafelka
+                    }
+                }
     });
 
             // Pokaż popup po kliknięciu na przycisk "+"
@@ -267,8 +272,9 @@
                     <span>${name}</span>
                     <button class="remove-btn">Usuń</button>
                 `;
-                newTile.querySelector('.remove-btn').addEventListener('click', function() {
-                    sortableContainer.removeChild(newTile);
+                newTile.querySelector('.remove-btn').addEventListener('click', function(event) {
+                    event.stopPropagation(); // Zapobiega wywołaniu zdarzenia dla kontenera
+                    removeTile(newTile); // Usunięcie kafelka
                 });
                 sortableContainer.appendChild(newTile);
             }
