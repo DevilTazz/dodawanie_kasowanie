@@ -186,10 +186,7 @@
                 onEnd: function (evt) {
                     console.log('Przesunięty element:', evt.item);
                     // Sprawdź, czy kafelek został przeciągnięty do kosza
-            if (evt.from === sortableContainer && evt.to === trash) {
-                        // Wywołaj funkcję do usunięcia kafelka
-                        removeTile(evt.item);
-            }
+            
                 }
             });
 
