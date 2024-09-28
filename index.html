@@ -180,11 +180,23 @@
             // Inicjalizacja Sortable
             const sortable = new Sortable(sortableContainer, {
                 animation: 150,
+                  group: 'tiles', // Grupa dla kafelków
                 handle: '.icon', // Umożliwia przeciąganie przyciskiem w kafelku
                 onEnd: function (evt) {
                     console.log('Przesunięty element:', evt.item);
+                    // Sprawdź, czy kafelek został przeciągnięty do kosza
+            if (evt.from === sortableContainer && evt.to === trash) {
+                sortableContainer.removeChild(evt.item); // Usuń kafelek
+                console.log('Kafelek usunięty do kosza');
+            }
                 }
             });
+
+            // Inicjalizacja Sortable dla kosza
+    const trashSortable = new Sortable(trash, {
+        group: 'tiles', // Musi być taka sama grupa jak w kontenerze
+        // Możesz dodać więcej opcji, jeśli chcesz
+    });
 
             // Pokaż popup po kliknięciu na przycisk "+"
             addTileBtn.addEventListener("click", function() {
