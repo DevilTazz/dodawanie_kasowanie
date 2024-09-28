@@ -5,70 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tile Removal Example</title>
     <style>
+      
       .blur-background {
-            background-color: lightblue;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            filter: blur(1px);
-            opacity: 0.9;
-            z-index: -1;
-        }
+        background-color: lightblue;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        filter: blur(1px);
+        opacity: 0.9;
+        z-index: -1;
+      }
       
       #add-tile {
-            color: black;
-            font-size: 36px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-            background-color: #F5F5DC;
-        }
+        color: black;
+        font-size: 36px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        background-color: #F5F5DC;
+      }
+
+      /* Kontener dla ikon, z odstępem od prawej strony */
       .icon-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 20px;
-            justify-content: center;
-            position: center;
-            margin-top: 20px;
-        }
-        .icon {
-            width: 100px;
-            height: 100px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-            background-color: green;
-            border-radius: 50%;
-            display: inline-block;
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin: 10px;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            text-align: center;
-            position: relative;
-           
-        }
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-end;
+        margin-right: 100px; /* Ustawienie 100px od prawej strony */
+        margin-left: 100px; /* Zachowaj odstęp od lewej strony */
+      }
+
+      /* Pojedynczy kafelek */
+      .icon {
+        width: 100px;
+        height: 100px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        background-color: green;
+        border-radius: 50%;
+        display: inline-block;
+        padding: 10px;
+        margin: 20px 0; /* Dodanie przerwy między kafelkami */
+        text-align: center;
+        position: relative;
+        cursor: pointer;
+      }
+
         
+        /* Przycisk do usuwania */
+      .remove-btn {
+        background-color: red;
+        color: white;
+        border: none;
+        cursor: pointer;
+        margin-top: 5px;
+      }
 
-        .remove-btn {
-            background-color: red;
-            color: white;
-            border: none;
-            cursor: pointer;
-            margin-top: 5px;
-        }
-
-        #trash {
+      /* Kosz */
+      #trash {
             width: 50px;
             height: 50px;
             background-image: url('open_trash_test.svg');
@@ -76,29 +80,53 @@
             border: 1px solid black;
             margin-top: 20px;
         }
+
+      /* Czarna przerywana linia */
+      .separator-line {
+        width: 2px;
+        height: 100%;
+        background-color: transparent;
+        border-left: 2px dashed black;
+        position: absolute;
+        top: 0;
+        right: 60px; /* Ustawienie przerywanej linii na środku */
+      }
+ 
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
 <body>
-  <div class="blur-background"></div>
   
+  <div class="blur-background"></div>
 
+  <!-- Przykładowe ikony -->
   <div class="icon-container" id="sortable-container">
-            <!-- Ikony zostaną dodane dynamicznie -->
-            <div id="add-tile">+</div>
+    
+    <!-- Dodanie przerywanej linii -->
+    <div class="separator-line"></div>
+    
+    <!-- Ikony zostaną dodane dynamicznie -->
+    <div id="add-tile">+</div>
+    
   </div>
 
+  <div class="separator-line"></div>
+
   <!-- Dymek do wybierania kafelków -->
-    <div id="tile-popup" class="popup hidden">
-        <div class="popup-content-tiles">
-            <span id="close-tile-popup" class="close-btn">&times;</span>
-            <h2>Dodaj kafelek</h2>
-            <div id="available-tiles" class="tile-list"></div>
-        </div>
+  <div id="tile-popup" class="popup hidden">
+    <div class="popup-content-tiles">
+      <span id="close-tile-popup" class="close-btn">&times;</span>
+      <h2>Dodaj kafelek</h2>
+      <div id="available-tiles" class="tile-list"></div>
     </div>
+  </div>
+
+  <div class="separator-line"></div>
 
     <!-- Kosz -->
     <div id="trash"></div>
+
+  <div class="separator-line"></div>
 
     <script>
       const sortableContainer = document.getElementById('sortable-container');
