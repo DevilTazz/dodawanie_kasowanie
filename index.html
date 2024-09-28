@@ -1,282 +1,265 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tile Removal Example</title>
     <style>
-      .blur-background {
-        background-color: lightblue;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;       
-        filter: blur(1px);
-        opacity: 0.9;
-        z-index: -1;
-      }
+        .blur-background {
+            background-color: lightblue;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            filter: blur(1px);
+            opacity: 0.9;
+            z-index: -1;
+        }
 
-      /* Styl przycisku "+" (dodaj kafelek) */
-      #add-tile {
-        color: black;
-        font-size: 36px;
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-        background-color: #F5F5DC;
-        margin-left: 100px; /* Odstęp od lewej strony */
-        margin-right: auto; /* Wyłącz odstęp od prawej strony */
-        position: absolute; /* Użyj pozycji absolutnej */
-      }
+        /* Styl przycisku "+" (dodaj kafelek) */
+        #add-tile {
+            color: black;
+            font-size: 36px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            background-color: #F5F5DC;
+            margin-left: 100px; /* Ustawiony odstęp od lewej */
+            margin-right: auto; /* Wyłącz odstęp od prawej strony */
+            position: absolute; /* Użyj pozycji absolutnej */
+            top: 20px; /* Ustawienie od góry, aby nie był przesunięty w dół */
+        }
 
-      /* Kontener dla ikon */
-      .icon-container {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-start; /* Wyrównaj do lewej */
-        margin-left: 100px; /* Zachowaj odstęp od lewej strony */
-        margin-top: 20px; /* Ustawia odstęp między ikonami */
-      }
+        /* Kontener dla ikon */
+        .icon-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start; /* Wyrównaj do lewej */
+            margin-left: 100px; /* Zachowaj odstęp od lewej strony */
+            margin-top: 150px; /* Ustawia odstęp od góry, aby kafelki były poniżej przycisku "+" */
+        }
 
-      /* Styl pojedynczego kafelka */
-      .icon {
-        width: 100px;
-        height: 100px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-        background-color: green;
-        border-radius: 50%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        margin: 20px 0; /* Dodanie przerwy między kafelkami */
-        text-align: center;
-        cursor: pointer;
-      }
+        /* Styl pojedynczego kafelka */
+        .icon {
+            width: 100px;
+            height: 100px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            background-color: green;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0; /* Dodanie przerwy między kafelkami */
+            text-align: center;
+            cursor: pointer;
+        }
 
-      .icon img {
-        width: 60%;
-        height: auto;
-        border-radius: 50%;
-      }
-        
-      /* Przycisk do usuwania */
-      .remove-btn {
-        background-color: red;
-        color: white;
-        border: none;
-        cursor: pointer;
-        margin-top: 5px;
-      }
+        .icon img {
+            width: 60%;
+            height: auto;
+            border-radius: 50%;
+        }
 
-      /* Kosz */
-      #trash {
-        width: 50px;
-        height: 50px;
-        background-image: url('open_trash_test.svg');
-        background-size: cover;
-        border: 1px solid black;
-        position: absolute; /* Użyj pozycji absolutnej */
-        left: 100px; /* Odstęp od lewej */
-        top: calc(40px + 100px + 20px); /* Odstęp od góry (40px + wysokość kafelka + 20px) */
-      }
+        /* Przycisk do usuwania */
+        .remove-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 5px;
+        }
 
-      /* Czarna przerywana linia */
-      .separator-line {
-        width: 100%; /* Szerokość linii */
-        height: 2px; /* Wysokość linii */
-        background-color: transparent; 
-        border-bottom: 2px dashed black; /* Zmienione na border-bottom, aby zrobić linię poziomą */
-        position: absolute; /* Użyj pozycji absolutnej */
-        top: 20px; /* Ustawienie linii wyżej, aby nie przecinała kafelka */
+        /* Kosz */
+        #trash {
+            width: 50px;
+            height: 50px;
+            background-image: url('open_trash_test.svg');
+            background-size: cover;
+            border: 1px solid black;
+            position: absolute; /* Użyj pozycji absolutnej */
+            left: 100px; /* Odstęp od lewej */
+            top: calc(160px); /* Odstęp od góry */
+        }
 
-      }
-      
-      /* Popup z kafelkami do wyboru */
-      .popup {
-        display: none; /* Domyślnie ukryty */
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: white;
-        padding: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-        z-index: 10; /* Aby popup był nad innymi elementami */
-        width: 300px;
-        border-radius: 10px;
-      }
+        /* Czarna przerywana linia */
+        .separator-line {
+            width: 100%; /* Szerokość linii */
+            height: 2px; /* Wysokość linii */
+            background-color: transparent;
+            border-bottom: 2px dashed black; /* Zmienione na border-bottom, aby zrobić linię poziomą */
+            position: absolute; /* Użyj pozycji absolutnej */
+            top: 80px; /* Ustawienie linii poniżej przycisku "+" */
+        }
 
-      /* Styl dla dostępnych kafelków w popupie */
-      .tile-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background-color: #f1f1f1;
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
+        /* Popup z kafelkami do wyboru */
+        .popup {
+            display: none; /* Domyślnie ukryty */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            z-index: 10; /* Aby popup był nad innymi elementami */
+            width: 300px;
+            border-radius: 10px;
+        }
 
-      .tile-item:hover {
-        background-color: #e0e0e0;
-      }
+        /* Styl dla dostępnych kafelków w popupie */
+        .tile-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #f1f1f1;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
 
-      /* Styl dla ikonki kafelka w popupie */
-      .tile-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        object-fit: cover;
-      }
+        .tile-item:hover {
+            background-color: #e0e0e0;
+        }
 
-      /* Styl dla informacji o kafelku w popupie */
-      .tile-info {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-        margin-left: 10px;
-      }
+        /* Styl dla ikonki kafelka w popupie */
+        .tile-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
 
-      /* Styl dla nazwy kafelka */
-      .tile-name {
-        font-size: 16px;
-        font-weight: bold;
-      }
+        /* Styl dla informacji o kafelku w popupie */
+        .tile-info {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            margin-left: 10px;
+        }
 
-      /* Styl dla opisu kafelka */
-      .tile-description {
-        font-size: 12px;
-        color: gray;
-      }
+        /* Styl dla nazwy kafelka */
+        .tile-name {
+            font-size: 16px;
+            font-weight: bold;
+        }
 
-      /* Styl dla ikony "check" */
-      .fa-check {
-        font-size: 20px;
-        color: green;
-        display: none; /* Domyślnie ukryta, dopiero po kliknięciu się pojawia */
-      } 
+        /* Styl dla opisu kafelka */
+        .tile-description {
+            font-size: 12px;
+            color: gray;
+        }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
-<body>  
-  <div class="blur-background"></div>
+<body>
+    <div class="blur-background"></div>
 
-  <!-- Kontener na kafelki -->
-  <div class="icon-container" id="sortable-container">    
-    <!-- Ikony zostaną dodane dynamicznie -->
-    <div id="add-tile">+</div>
-    <!-- Dodanie przerywanej linii -->
-    <div class="separator-line"></div>  
-  </div>
+    <!-- Kontener na kafelki -->
+    <div class="icon-container" id="sortable-container">
+        <div id="add-tile">+</div>
+        <div class="separator-line"></div>
+    </div>
 
-  <!-- Kosz -->
-  <div id="trash"></div>
+    <!-- Kosz -->
+    <div id="trash"></div>
 
-  <!-- Popup z dostępnymi kafelkami -->
-  <div id="tile-popup" class="popup">
-    <h2>Dodaj kafelek</h2>
-    <div id="available-tiles"></div>
-  </div>
-  
+    <!-- Popup z dostępnymi kafelkami -->
+    <div id="tile-popup" class="popup">
+        <h2>Dodaj kafelek</h2>
+        <div id="available-tiles"></div>
+        <button id="close-popup">Zamknij</button> <!-- Przycisk do zamknięcia popupu -->
+    </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const sortableContainer = document.getElementById('sortable-container');
-            const trashIcon = document.getElementById('trash');
-            const addTileBtn = document.getElementById("add-tile");
-            const tilePopup = document.getElementById("tile-popup");
-            const availableTiles = document.getElementById('available-tiles');
-            const closePopupBtn = document.getElementById('close-popup');
+document.addEventListener("DOMContentLoaded", function() {
+    const sortableContainer = document.getElementById('sortable-container');
+    const addTileBtn = document.getElementById("add-tile");
+    const tilePopup = document.getElementById("tile-popup");
+    const availableTiles = document.getElementById('available-tiles');
+    const closePopupBtn = document.getElementById('close-popup');
 
-            // Pokaż popup po kliknięciu na przycisk "+"
-            addTileBtn.addEventListener("click", function() {
-                tilePopup.style.display = "block"; // Pokaż popup
-                loadAvailableTiles(); // Ładowanie dostępnych kafelków
-            });
+    // Pokaż popup po kliknięciu na przycisk "+"
+    addTileBtn.addEventListener("click", function() {
+        tilePopup.classList.add("show"); // Pokaż popup
+        loadAvailableTiles(); // Ładowanie dostępnych kafelków
+    });
 
-            // Zamknij popup po kliknięciu przycisku "Zamknij"
-            closePopupBtn.addEventListener("click", function() {
-                tilePopup.style.display = "none"; // Ukryj popup
-            });
+    // Zamknij popup po kliknięciu przycisku "Zamknij"
+    closePopupBtn.addEventListener("click", function() {
+        tilePopup.classList.remove("show"); // Ukryj popup
+    });
 
-            // Zamknij popup po kliknięciu poza jego obszarem
-            window.addEventListener('click', function(event) {
-                if (tilePopup.style.display === "block" && !tilePopup.contains(event.target) && event.target !== addTileBtn) {
-                    tilePopup.style.display = "none"; // Ukryj popup
+    // Zamknij popup po kliknięciu poza jego obszarem
+    window.addEventListener('click', function(event) {
+        if (tilePopup.classList.contains("show") && !tilePopup.contains(event.target) && event.target !== addTileBtn) {
+            tilePopup.classList.remove("show"); // Ukryj popup
+        }
+    });
+
+    // Funkcja do ładowania dostępnych kafelków
+    function loadAvailableTiles() {
+        availableTiles.innerHTML = ''; // Wyczyść listę kafelków
+        fetch('tiles.json') // Upewnij się, że plik jest w głównym folderze
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
                 }
-            });
-
-            // Funkcja do ładowania dostępnych kafelków
-            function loadAvailableTiles() {
-                availableTiles.innerHTML = ''; // Wyczyść listę kafelków
-                fetch('assets/tiles.json')
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(tile => {
-                            const tileElement = createTileForPopup(tile.iconUrl, tile.id, tile.name, tile.description);
-                            availableTiles.appendChild(tileElement);
-                        });
-                    })
-                    .catch(error => console.error('Error loading tiles:', error));
-            }
-
-            // Funkcja tworząca kafelek do wyświetlenia w popupie
-            function createTileForPopup(iconSrc, tileId, tileName, tileDescription) {
-                const tile = document.createElement("div");
-                tile.className = "tile-item"; // Klasa do wyświetlania w dymku
-                tile.innerHTML = `
-                    <img src="${iconSrc}" alt="Tile" class="tile-icon">
-                    <div class="tile-info">
-                        <div class="tile-name">${tileName}</div>
-                        <div class="tile-description">${tileDescription}</div>
-                    </div>
-                `;
-                tile.id = tileId;
-
-                // Dodaj event listener do kafelka
-                tile.addEventListener("click", function() {
-                    // Dodanie kafelka do głównego ekranu
-                    const newTile = createTileForMainScreen(iconSrc, tileId, tileName);
-                    sortableContainer.appendChild(newTile);
-                    tilePopup.style.display = "none"; // Ukryj popup po wyborze kafelka
+                return response.json();
+            })
+            .then(data => {
+                data.forEach(tile => {
+                    const tileElement = createTileForPopup(tile.iconUrl, tile.id, tile.name, tile.description);
+                    availableTiles.appendChild(tileElement);
                 });
+            })
+            .catch(error => {
+                console.error('Error fetching tiles:', error);
+            });
+    }
 
-                return tile;
-            }
-
-            // Funkcja tworząca kafelek na głównym ekranie
-            function createTileForMainScreen(iconSrc, tileId, tileName) {
-                const tile = document.createElement("div");
-                tile.className = "icon";
-                tile.id = tileId;
-                tile.innerHTML = `
-                    <img src="${iconSrc}" alt="${tileName}">
-                    <div>${tileName}</div>
-                    <button class="remove-btn" onclick="removeTile('${tileId}')">Usuń</button>
-                `;
-
-                return tile;
-            }
-
-            // Funkcja do usuwania kafelka
-            window.removeTile = function(tileId) {
-                const tile = document.getElementById(tileId);
-                if (tile) {
-                    tile.remove();
-                }
-            };
+    // Funkcja do tworzenia kafelka w popupie
+    function createTileForPopup(iconUrl, id, name, description) {
+        const tileItem = document.createElement('div');
+        tileItem.className = 'tile-item';
+        tileItem.innerHTML = `
+            <img class="tile-icon" src="${iconUrl}" alt="${name}">
+            <div class="tile-info">
+                <div class="tile-name">${name}</div>
+                <div class="tile-description">${description}</div>
+            </div>
+        `;
+        tileItem.addEventListener('click', function() {
+            addTileToContainer(id, iconUrl, name); // Dodaj kafelek do kontenera
+            tilePopup.classList.remove("show"); // Ukryj popup po dodaniu kafelka
         });
+        return tileItem;
+    }
+
+    // Funkcja do dodawania kafelka do kontenera
+    function addTileToContainer(id, iconUrl, name) {
+        const tileElement = document.createElement('div');
+        tileElement.className = 'icon';
+        tileElement.innerHTML = `
+            <img src="${iconUrl}" alt="${name}">
+            <button class="remove-btn">Usuń</button>
+        `;
+        tileElement.querySelector('.remove-btn').addEventListener('click', function() {
+            tileElement.remove(); // Usunięcie kafelka
+        });
+        sortableContainer.appendChild(tileElement);
+    }
+});
+
     </script>
 </body>
 </html>
