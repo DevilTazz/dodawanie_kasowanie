@@ -31,9 +31,8 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
             background-color: #F5F5DC;
             margin-left: 100px; /* Ustawiony odstęp od lewej */
-            margin-right: auto; /* Wyłącz odstęp od prawej strony */
             position: absolute; /* Użyj pozycji absolutnej */
-            top: 20px; /* Ustawienie od góry, aby nie był przesunięty w dół */
+            top: 50px; /* Ustawienie od góry */
         }
 
         /* Kontener dla ikon */
@@ -44,7 +43,7 @@
             justify-content: flex-start;
             align-items: flex-start; /* Wyrównaj do lewej */
             margin-left: 100px; /* Zachowaj odstęp od lewej strony */
-            margin-top: 150px; /* Ustawia odstęp od góry, aby kafelki były poniżej przycisku "+" */
+            margin-top: 0; /* Usunięcie marginesu od góry */
         }
 
         /* Styl pojedynczego kafelka */
@@ -94,10 +93,10 @@
         .separator-line {
             width: 100%; /* Szerokość linii */
             height: 2px; /* Wysokość linii */
-            background-color: transparent;
             border-bottom: 2px dashed black; /* Zmienione na border-bottom, aby zrobić linię poziomą */
             position: absolute; /* Użyj pozycji absolutnej */
-            top: 80px; /* Ustawienie linii poniżej przycisku "+" */
+            top: calc(150px); /* Ustawienie linii 20px poniżej przycisku "+" */
+            left: 0; /* Wyrównanie linii do lewej */
         }
 
         /* Popup z kafelkami do wyboru */
@@ -181,85 +180,84 @@
     </div>
 
     <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const sortableContainer = document.getElementById('sortable-container');
-    const addTileBtn = document.getElementById("add-tile");
-    const tilePopup = document.getElementById("tile-popup");
-    const availableTiles = document.getElementById('available-tiles');
-    const closePopupBtn = document.getElementById('close-popup');
+        document.addEventListener("DOMContentLoaded", function() {
+            const sortableContainer = document.getElementById('sortable-container');
+            const addTileBtn = document.getElementById("add-tile");
+            const tilePopup = document.getElementById("tile-popup");
+            const availableTiles = document.getElementById('available-tiles');
+            const closePopupBtn = document.getElementById('close-popup');
 
-    // Pokaż popup po kliknięciu na przycisk "+"
-    addTileBtn.addEventListener("click", function() {
-        tilePopup.classList.add("show"); // Pokaż popup
-        loadAvailableTiles(); // Ładowanie dostępnych kafelków
-    });
-
-    // Zamknij popup po kliknięciu przycisku "Zamknij"
-    closePopupBtn.addEventListener("click", function() {
-        tilePopup.classList.remove("show"); // Ukryj popup
-    });
-
-    // Zamknij popup po kliknięciu poza jego obszarem
-    window.addEventListener('click', function(event) {
-        if (tilePopup.classList.contains("show") && !tilePopup.contains(event.target) && event.target !== addTileBtn) {
-            tilePopup.classList.remove("show"); // Ukryj popup
-        }
-    });
-
-    // Funkcja do ładowania dostępnych kafelków
-    function loadAvailableTiles() {
-        availableTiles.innerHTML = ''; // Wyczyść listę kafelków
-        fetch('tiles.json') // Upewnij się, że plik jest w głównym folderze
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                data.forEach(tile => {
-                    const tileElement = createTileForPopup(tile.iconUrl, tile.id, tile.name, tile.description);
-                    availableTiles.appendChild(tileElement);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching tiles:', error);
+            // Pokaż popup po kliknięciu na przycisk "+"
+            addTileBtn.addEventListener("click", function() {
+                tilePopup.classList.add("show"); // Pokaż popup
+                loadAvailableTiles(); // Ładowanie dostępnych kafelków
             });
-    }
 
-    // Funkcja do tworzenia kafelka w popupie
-    function createTileForPopup(iconUrl, id, name, description) {
-        const tileItem = document.createElement('div');
-        tileItem.className = 'tile-item';
-        tileItem.innerHTML = `
-            <img class="tile-icon" src="${iconUrl}" alt="${name}">
-            <div class="tile-info">
-                <div class="tile-name">${name}</div>
-                <div class="tile-description">${description}</div>
-            </div>
-        `;
-        tileItem.addEventListener('click', function() {
-            addTileToContainer(id, iconUrl, name); // Dodaj kafelek do kontenera
-            tilePopup.classList.remove("show"); // Ukryj popup po dodaniu kafelka
+            // Zamknij popup po kliknięciu przycisku "Zamknij"
+            closePopupBtn.addEventListener("click", function() {
+                tilePopup.classList.remove("show"); // Ukryj popup
+            });
+
+            // Zamknij popup po kliknięciu poza jego obszarem
+            window.addEventListener('click', function(event) {
+                if (tilePopup.classList.contains("show") && !tilePopup.contains(event.target) && event.target !== addTileBtn) {
+                    tilePopup.classList.remove("show"); // Ukryj popup
+                }
+            });
+
+            // Funkcja do ładowania dostępnych kafelków
+            function loadAvailableTiles() {
+                availableTiles.innerHTML = ''; // Wyczyść listę kafelków
+                fetch('tiles.json') // Upewnij się, że plik jest w głównym folderze
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        data.forEach(tile => {
+                            const tileElement = createTileForPopup(tile.iconUrl, tile.id, tile.name, tile.description);
+                            availableTiles.appendChild(tileElement);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching tiles:', error);
+                    });
+            }
+
+            // Funkcja do tworzenia kafelka w popupie
+            function createTileForPopup(iconUrl, id, name, description) {
+                const tileItem = document.createElement('div');
+                tileItem.className = 'tile-item';
+                tileItem.innerHTML = `
+                    <img class="tile-icon" src="${iconUrl}" alt="${name}">
+                    <div class="tile-info">
+                        <div class="tile-name">${name}</div>
+                        <div class="tile-description">${description}</div>
+                    </div>
+                `;
+                tileItem.addEventListener('click', function() {
+                    addTileToContainer(id, iconUrl, name); // Dodaj kafelek do kontenera
+                    tilePopup.classList.remove("show"); // Ukryj popup po dodaniu kafelka
+                });
+                return tileItem;
+            }
+
+            // Funkcja do dodawania kafelka do kontenera
+            function addTileToContainer(id, iconUrl, name) {
+                const tileElement = document.createElement('div');
+                tileElement.className = 'icon';
+                tileElement.innerHTML = `
+                    <img src="${iconUrl}" alt="${name}">
+                    <button class="remove-btn">Usuń</button>
+                `;
+                tileElement.querySelector('.remove-btn').addEventListener('click', function() {
+                    tileElement.remove(); // Usunięcie kafelka
+                });
+                sortableContainer.appendChild(tileElement);
+            }
         });
-        return tileItem;
-    }
-
-    // Funkcja do dodawania kafelka do kontenera
-    function addTileToContainer(id, iconUrl, name) {
-        const tileElement = document.createElement('div');
-        tileElement.className = 'icon';
-        tileElement.innerHTML = `
-            <img src="${iconUrl}" alt="${name}">
-            <button class="remove-btn">Usuń</button>
-        `;
-        tileElement.querySelector('.remove-btn').addEventListener('click', function() {
-            tileElement.remove(); // Usunięcie kafelka
-        });
-        sortableContainer.appendChild(tileElement);
-    }
-});
-
     </script>
 </body>
 </html>
