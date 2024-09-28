@@ -5,12 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tile Removal Example</title>
     <style>
+      .blur-background {
+            background-color: lightblue;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(1px);
+            opacity: 0.9;
+            z-index: -1;
+        }
+      
+      #add-tile {
+            color: black;
+            font-size: 36px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            background-color: #F5F5DC;
+        }
+      .icon-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
         .icon {
+            width: 100px;
+            height: 100px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            background-color: green;
+            border-radius: 50%;
             display: inline-block;
             border: 1px solid #ccc;
             padding: 10px;
             margin: 10px;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            text-align: center;
+            position: relative;
+           
         }
+        
 
         .remove-btn {
             background-color: red;
@@ -23,7 +70,7 @@
         #trash {
             width: 50px;
             height: 50px;
-            background-image: url('trash-icon.png');
+            background-image: url('open_trash_test.svg');
             background-size: cover;
             border: 1px solid black;
             margin-top: 20px;
@@ -32,6 +79,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
 <body>
+  <div class="blur-background"></div>
   
 
   <div class="icon-container" id="sortable-container">
@@ -52,8 +100,50 @@
     <div id="trash"></div>
 
     <script>
-        const sortableContainer = document.getElementById('sortable-container');
-        const trashIcon = document.getElementById('trash');
+      const sortableContainer = document.getElementById('sortable-container');
+      const trashIcon = document.getElementById('trash');
+      const addTileBtn = document.getElementById("add-tile");
+
+      // Add tile popup functionality
+            if (addTileBtn) {
+                addTileBtn.addEventListener("click", function() {
+                    if (!switchElement.classList.contains("on")) {
+                        tilePopup.classList.add("show");
+                    }
+                });
+            }
+            
+            // Close tile popup
+            if (closeTilePopupBtn) {
+                closeTilePopupBtn.addEventListener("click", function() {
+                    tilePopup.classList.remove("show");
+                });
+                document.addEventListener("click", function(event) {
+                    if (event.target === tilePopup) {
+                        tilePopup.classList.remove("show");
+                    }
+                });
+            }
+
+      // Function to create a tile
+            function createTileForMainScreen(iconSrc, tileId, tileName, tileLink) {
+                const tile = document.createElement("div");
+                tile.className = "icon";
+                tile.innerHTML = `<a href="${tileLink}"><img src="${iconSrc}" alt="Tile"><div class="name">${tileName}</a></div>`;
+                tile.id = tileId;
+
+                 // Dodaj obsługę przeciągania
+                tile.setAttribute("draggable", "true");
+                tile.addEventListener("dragstart", function(event) {
+                    event.dataTransfer.setData("text/plain", tileId);
+                });
+
+                 // Logowanie do konsoli
+                console.log(tile.innerHTML); // Zobacz zawartość
+                console.log(tile.outerHTML); // Zobacz pełną strukturę elementu
+                
+                return tile;
+            } 
 
         // Function to create a tile (dodawanie kafelka)
         function createTileForMainScreen(iconSrc, tileId, tileName, tileLink) {
