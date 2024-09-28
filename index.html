@@ -151,6 +151,7 @@
             color: gray;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
 <body>
     <div class="blur-background"></div>
@@ -176,14 +177,25 @@
             const availableTiles = document.getElementById('available-tiles');
             const closePopupBtn = document.getElementById('close-popup');
 
+            // Inicjalizacja Sortable
+            const sortable = new Sortable(sortableContainer, {
+                animation: 150,
+                handle: '.icon', // Umożliwia przeciąganie przyciskiem w kafelku
+                onEnd: function (evt) {
+                    console.log('Przesunięty element:', evt.item);
+                }
+            });
+
             // Pokaż popup po kliknięciu na przycisk "+"
             addTileBtn.addEventListener("click", function() {
+                event.preventDefault(); // Zapobiega domyślnym działaniom
                 tilePopup.classList.add("show"); // Pokaż popup
                 loadAvailableTiles(); // Ładowanie dostępnych kafelków
             });
 
             // Zamknij popup po kliknięciu przycisku "Zamknij"
             closePopupBtn.addEventListener("click", function() {
+                event.preventDefault(); // Zapobiega domyślnym działaniom
                 tilePopup.classList.remove("show"); // Ukryj popup
             });
 
