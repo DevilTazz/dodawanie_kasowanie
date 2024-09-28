@@ -31,7 +31,9 @@
         height: 100px;
         border-radius: 50%;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-        background-color: #F5F5DC;
+        background-color: #F5F5DC;,
+        margin-left: 100px; /* Odstęp od lewej strony */
+        margin-right: auto; /* Wyłącz odstęp od prawej strony */
       }
 
       /* Kontener dla ikon */
@@ -131,13 +133,26 @@
 
 
     <script>
-      const sortableContainer = document.getElementById('sortable-container');
-      const trashIcon = document.getElementById('trash');
-      const addTileBtn = document.getElementById("add-tile");
-      const tilePopup = document.getElementById("tile-popup");
+document.addEventListener("DOMContentLoaded", function() {
+    const sortableContainer = document.getElementById('sortable-container');
+    const trashIcon = document.getElementById('trash');
+    const addTileBtn = document.getElementById("add-tile");
+    const tilePopup = document.getElementById("tile-popup");
 
-      // Funkcja tworząca kafelek na głównym ekranie
-      function createTileForMainScreen(iconSrc, tileId, tileName, tileLink) {
+    // Pokaż popup po kliknięciu na przycisk "+"
+    addTileBtn.addEventListener("click", function() {
+        tilePopup.style.display = 'block'; // Pokaż popup
+    });
+
+    // Zamknij popup po kliknięciu poza jego obszarem
+    tilePopup.addEventListener('click', function(event) {
+        if (event.target === tilePopup) {
+            tilePopup.style.display = 'none'; // Ukryj popup
+        }
+    });
+
+    // Funkcja tworząca kafelek na głównym ekranie
+    function createTileForMainScreen(iconSrc, tileId, tileName, tileLink) {
         const tile = document.createElement("div");
         tile.className = "icon";
         tile.innerHTML = `
@@ -161,10 +176,10 @@
         });
 
         return tile;
-      }
+    }
 
-      // Funkcja usuwająca kafelek z ekranu głównego
-      function removeTileFromMainScreen(tileId) {
+    // Funkcja usuwająca kafelek z ekranu głównego
+    function removeTileFromMainScreen(tileId) {
         const tileToRemove = document.getElementById(tileId); // Znajdź kafelek po ID
         if (tileToRemove) {
           sortableContainer.removeChild(tileToRemove); // Usuń kafelek z kontenera
@@ -172,60 +187,44 @@
         } else {
           console.error(`Tile with ID ${tileId} not found on the main screen.`);
         }
-      }
+    }
 
-      // Obsługa przeciągania i upuszczania kafelków na kosz
-      trashIcon.addEventListener('dragover', function(event) {
+    // Obsługa przeciągania i upuszczania kafelków na kosz
+    trashIcon.addEventListener('dragover', function(event) {
         event.preventDefault(); // Pozwól na upuszczenie
-      });
+    });
 
-      trashIcon.addEventListener('drop', function(event) {
+    trashIcon.addEventListener('drop', function(event) {
         event.preventDefault();
         const tileId = event.dataTransfer.getData('text/plain');
         removeTileFromMainScreen(tileId); // Usuwanie kafelka po przeciągnięciu na kosz
-      });
+    });
 
-     
+    // Fetch and load available tiles from JSON
+    fetch('assets/tiles.json')
+        .then(response => response.json())
+        .then(data => {
+            const tileList = document.getElementById('available-tiles');
 
-      
+            // Dodaj dostępne kafelki do popupu
+            data.forEach(tile => {
+                const tileElement = document.createElement('div');
+                tileElement.classList.add('tile-option');
+                tileElement.innerHTML = `<img src="${tile.iconUrl}" alt="${tile.name}"> ${tile.name}`;
+                
+                // Nasłuchiwanie kliknięcia na dany kafelek
+                tileElement.addEventListener('click', function() {
+                    const newTile = createTileForMainScreen(tile.iconUrl, tile.id, tile.name, tile.link);
+                    sortableContainer.appendChild(newTile);
 
-        // Fetch and load available tiles from JSON
-fetch('assets/tiles.json')
-    .then(response => response.json())
-    .then(data => {
-        const tileList = document.getElementById('available-tiles');
+                    // Usuwamy linie zamykającą popup po wyborze kafelka
+                });
 
-        // Dodaj dostępne kafelki do popupu
-        data.forEach(tile => {
-          const tileElement = document.createElement('div');
-          tileElement.classList.add('tile-option');
-          tileElement.innerHTML = `<img src="${tile.iconUrl}" alt="${tile.name}"> ${tile.name}`;
-          
-          // Nasłuchiwanie kliknięcia na dany kafelek
-          tileElement.addEventListener('click', function() {
-            const newTile = createTileForMainScreen(tile.iconUrl, tile.id, tile.name, tile.link);
-            sortableContainer.appendChild(newTile);
-
-            // Zamknij popup po wybraniu kafelka
-            tilePopup.style.display = 'none';
-          });
-
-          tileList.appendChild(tileElement);
-        });
-
-        // Pokaż popup po kliknięciu w kafelek "+"
-        addTileBtn.addEventListener("click", function() {
-          tilePopup.style.display = 'block'; // Pokaż popup z kafelkami do wyboru
-        });
-
-        // Zamknij popup po kliknięciu poza jego obszarem
-        tilePopup.addEventListener('click', function(event) {
-          if (event.target === tilePopup) {
-            tilePopup.style.display = 'none';
-          }
-        });
-      })
-      .catch(error => console.error('Error loading tiles:', error));
+                tileList.appendChild(tileElement);
+            });
+        })
+        .catch(error => console.error('Error loading tiles:', error));
+});
     </script>
 
 
