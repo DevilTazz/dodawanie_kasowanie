@@ -163,145 +163,69 @@
         return tile;
       }
 
-      // Add tile popup functionality
-            if (addTileBtn) {
-                addTileBtn.addEventListener("click", function() {
-                    if (!switchElement.classList.contains("on")) {
-                        tilePopup.classList.add("show");
-                    }
-                });
-            }
-            
-            // Close tile popup
-            if (closeTilePopupBtn) {
-                closeTilePopupBtn.addEventListener("click", function() {
-                    tilePopup.classList.remove("show");
-                });
-                document.addEventListener("click", function(event) {
-                    if (event.target === tilePopup) {
-                        tilePopup.classList.remove("show");
-                    }
-                });
-            }
-
-      // Function to create a tile
-            function createTileForMainScreen(iconSrc, tileId, tileName, tileLink) {
-                const tile = document.createElement("div");
-                tile.className = "icon";
-                tile.innerHTML = `<a href="${tileLink}"><img src="${iconSrc}" alt="Tile"><div class="name">${tileName}</a></div>`;
-                tile.id = tileId;
-
-                 // Dodaj obsługę przeciągania
-                tile.setAttribute("draggable", "true");
-                tile.addEventListener("dragstart", function(event) {
-                    event.dataTransfer.setData("text/plain", tileId);
-                });
-
-                 // Logowanie do konsoli
-                console.log(tile.innerHTML); // Zobacz zawartość
-                console.log(tile.outerHTML); // Zobacz pełną strukturę elementu
-                
-                return tile;
-            } 
-
-        // Function to create a tile (dodawanie kafelka)
-        function createTileForMainScreen(iconSrc, tileId, tileName, tileLink) {
-            const tile = document.createElement("div");
-            tile.className = "icon";
-            tile.innerHTML = `<a href="${tileLink}"><img src="${iconSrc}" alt="Tile"><div class="name">${tileName}</div></a>
-                              <button class="remove-btn" data-tile-id="${tileId}">Usuń</button>`;
-            tile.id = tileId;
-
-            // Dodaj obsługę przeciągania
-            tile.setAttribute("draggable", "true");
-            tile.addEventListener("dragstart", function(event) {
-                event.dataTransfer.setData("text/plain", tileId);
-            });
-
-            // Event listener dla przycisku "Usuń"
-            const removeButton = tile.querySelector('.remove-btn');
-            removeButton.addEventListener('click', function() {
-                removeTileFromMainScreen(tileId); // Usuwanie kafelka po kliknięciu przycisku
-            });
-
-            // Logowanie do konsoli
-            console.log(tile.innerHTML); // Zobacz zawartość
-            console.log(tile.outerHTML); // Zobacz pełną strukturę elementu
-            
-            return tile;
+      // Funkcja usuwająca kafelek z ekranu głównego
+      function removeTileFromMainScreen(tileId) {
+        const tileToRemove = document.getElementById(tileId); // Znajdź kafelek po ID
+        if (tileToRemove) {
+          sortableContainer.removeChild(tileToRemove); // Usuń kafelek z kontenera
+          console.log(`Tile with ID ${tileId} removed from main screen.`);
+        } else {
+          console.error(`Tile with ID ${tileId} not found on the main screen.`);
         }
+      }
 
-        // Function to remove a tile from the main screen (usuwanie kafelka)
-        function removeTileFromMainScreen(tileId) {
-            const tileToRemove = document.getElementById(tileId); // Znajdź kafelek po ID
-            if (tileToRemove) {
-                sortableContainer.removeChild(tileToRemove); // Usuń kafelek z kontenera
-                console.log(`Tile with ID ${tileId} removed from main screen.`);
-            } else {
-                console.error(`Tile with ID ${tileId} not found on the main screen.`);
-            }
-        }
+      // Obsługa przeciągania i upuszczania kafelków na kosz
+      trashIcon.addEventListener('dragover', function(event) {
+        event.preventDefault(); // Pozwól na upuszczenie
+      });
 
-        // Event listener na przeciąganie i upuszczenie kafelka na kosz
-        trashIcon.addEventListener('dragover', function(event) {
-            event.preventDefault(); // Pozwól na upuszczenie
-        });
+      trashIcon.addEventListener('drop', function(event) {
+        event.preventDefault();
+        const tileId = event.dataTransfer.getData('text/plain');
+        removeTileFromMainScreen(tileId); // Usuwanie kafelka po przeciągnięciu na kosz
+      });
 
-        trashIcon.addEventListener('drop', function(event) {
-            event.preventDefault();
-            const tileId = event.dataTransfer.getData('text/plain');
-            removeTileFromMainScreen(tileId); // Usuwanie kafelka po przeciągnięciu na kosz
-        });
+     
+
+      
 
         // Fetch and load available tiles from JSON
 fetch('assets/tiles.json')
     .then(response => response.json())
     .then(data => {
-        const addTileBtn = document.getElementById('add-tile');
-        
-        // Tworzymy popup do wyboru kafelka
-        const tilePopup = document.createElement('div');
-        tilePopup.id = "tile-popup";
-        tilePopup.classList.add('popup');
-        document.body.appendChild(tilePopup);
-
-        const tileList = document.createElement('div');
-        tileList.id = "available-tiles";
-        tilePopup.appendChild(tileList);
+        const tileList = document.getElementById('available-tiles');
 
         // Dodaj dostępne kafelki do popupu
         data.forEach(tile => {
-            const tileElement = document.createElement('div');
-            tileElement.classList.add('tile-option');
-            tileElement.innerHTML = `<img src="${tile.iconUrl}" alt="${tile.name}"> ${tile.name}`;
-            
-            // Dodanie kafelka do popupu
-            tileList.appendChild(tileElement);
+          const tileElement = document.createElement('div');
+          tileElement.classList.add('tile-option');
+          tileElement.innerHTML = `<img src="${tile.iconUrl}" alt="${tile.name}"> ${tile.name}`;
+          
+          // Nasłuchiwanie kliknięcia na dany kafelek
+          tileElement.addEventListener('click', function() {
+            const newTile = createTileForMainScreen(tile.iconUrl, tile.id, tile.name, tile.link);
+            sortableContainer.appendChild(newTile);
 
-            // Nasłuchiwanie kliknięcia na dany kafelek
-            tileElement.addEventListener('click', function() {
-                // Stwórz nowy kafelek na głównym ekranie
-                const newTile = createTileForMainScreen(tile.iconUrl, tile.id, tile.name, tile.link);
-                sortableContainer.appendChild(newTile);
+            // Zamknij popup po wybraniu kafelka
+            tilePopup.style.display = 'none';
+          });
 
-                // Zamknij popup po wybraniu kafelka
-                tilePopup.style.display = 'none';
-            });
+          tileList.appendChild(tileElement);
         });
 
-        // Wyświetl popup po kliknięciu w kafelek "+"
+        // Pokaż popup po kliknięciu w kafelek "+"
         addTileBtn.addEventListener("click", function() {
-            tilePopup.style.display = 'block'; // Pokaż popup z kafelkami do wyboru
+          tilePopup.style.display = 'block'; // Pokaż popup z kafelkami do wyboru
         });
-        
-        // Opcjonalnie, dodaj możliwość zamknięcia popupu poza jego obszarem
+
+        // Zamknij popup po kliknięciu poza jego obszarem
         tilePopup.addEventListener('click', function(event) {
-            if (event.target === tilePopup) {
-                tilePopup.style.display = 'none'; // Ukryj popup po kliknięciu poza nim
-            }
+          if (event.target === tilePopup) {
+            tilePopup.style.display = 'none';
+          }
         });
-    })
-    .catch(error => console.error('Error loading tiles:', error));
+      })
+      .catch(error => console.error('Error loading tiles:', error));
     </script>
 
 
