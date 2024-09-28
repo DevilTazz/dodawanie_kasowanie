@@ -176,6 +176,7 @@
             const tilePopup = document.getElementById("tile-popup");
             const availableTiles = document.getElementById('available-tiles');
             const closePopupBtn = document.getElementById('close-popup');
+            const trash = document.getElementById('trash');
 
             // Inicjalizacja Sortable
             const sortable = new Sortable(sortableContainer, {
@@ -186,8 +187,8 @@
                     console.log('Przesunięty element:', evt.item);
                     // Sprawdź, czy kafelek został przeciągnięty do kosza
             if (evt.from === sortableContainer && evt.to === trash) {
-                sortableContainer.removeChild(evt.item); // Usuń kafelek
-                console.log('Kafelek usunięty do kosza');
+                        // Wywołaj funkcję do usunięcia kafelka
+                        removeTile(evt.item);
             }
                 }
             });
@@ -270,6 +271,11 @@
                     sortableContainer.removeChild(newTile);
                 });
                 sortableContainer.appendChild(newTile);
+            }
+            // Funkcja do usuwania kafelka
+            function removeTile(tile) {
+                sortableContainer.removeChild(tile);
+                console.log('Kafelek usunięty do kosza');
             }
         });
     </script>
